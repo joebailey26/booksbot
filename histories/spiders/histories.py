@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from scrapy.spiders import SitemapSpider 
+from scrapy.spiders import SitemapSpider
+import re
 
 class HistoriesSpider(SitemapSpider):
-    name = "histories"
+    name = 'histories'
     allowed_domains = ["localhistories.org"]
     sitemap_urls = ['http://localhistories.org/sitemap.xml'] 
     start_urls = [
@@ -11,6 +12,7 @@ class HistoriesSpider(SitemapSpider):
 
     def parse(self, response):
         item = {}
-        item['title']: response.css("h1 ::text").extract_first()
-        item['url']: response.url 
+        item['title'] = response.css("p::text").get()
+        item['url'] = re.findall("(?<=\/)[^\/]*(?=\.\w+$)", response.url)
+        item['content'] = response.css("p::text").getall()
         yield item
